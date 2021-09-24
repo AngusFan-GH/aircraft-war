@@ -1,26 +1,26 @@
 import { defineComponent, h, reactive } from '@vue/runtime-core';
-import Aircraft from '../component/aircraft';
 import Map from '../component/map';
+import Plane from '../component/plane';
 
 export default defineComponent({
     setup() {
-        const aircraftInfo = getAircraftPoint();
+        const { point } = getPlaneInfo();
         return {
-            aircraftInfo
+            planeInfo: point
         };
     },
     render(ctx) {
         return h('Container', [
             h(Map),
-            h(Aircraft, {
-                x: ctx.aircraftInfo.x,
-                y: ctx.aircraftInfo.y,
+            h(Plane, {
+                x: ctx.planeInfo.x,
+                y: ctx.planeInfo.y,
             })
         ]);
     }
 });
 
-function getAircraftPoint() {
+function getPlaneInfo() {
     const point = reactive({ x: 189, y: 500 });
     // keyboard control
     window.addEventListener('keydown', e => {
@@ -40,5 +40,5 @@ function getAircraftPoint() {
                 break;
         }
     });
-    return point;
+    return { point };
 }
