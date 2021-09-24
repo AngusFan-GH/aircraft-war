@@ -1,6 +1,6 @@
 import { defineComponent, h } from '@vue/runtime-core';
+import mapImage from '../../assets/map.png';
 import startBtnImage from '../../assets/startBtn.png';
-import startPageImage from '../../assets/start_page.jpg';
 
 export default defineComponent({
     setup(props, ctx) {
@@ -14,10 +14,12 @@ export default defineComponent({
     render(ctx) {
         // background image
         return h('Container', [
-            h('Sprite', { texture: startPageImage }),
+            h('Sprite', { texture: mapImage }),
             h('Sprite', {
                 texture: startBtnImage,
-                x: 225,
+                width: 300,
+                height: 60,
+                x: 90,
                 y: 510,
                 interactive: true,
                 onClick: ctx.onClick

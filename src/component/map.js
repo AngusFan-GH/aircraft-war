@@ -1,10 +1,10 @@
 import { defineComponent, h, ref } from '@vue/runtime-core';
-import mapImage from '../../assets/map.jpg';
+import mapImage from '../../assets/map.png';
 import { game } from '../Game.js';
 
 export default defineComponent({
     setup(props, ctx) {
-        const viewHeight = 1080;
+        const viewHeight = 700;
         const mapY1 = ref(0);
         const mapY2 = ref(-viewHeight);
 
