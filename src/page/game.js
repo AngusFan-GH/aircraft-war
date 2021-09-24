@@ -1,4 +1,5 @@
 import { defineComponent, h, onMounted, onUnmounted, reactive } from '@vue/runtime-core';
+import Bullet from '../component/bullet';
 import Enemy from '../component/enemy';
 import Map from '../component/map';
 import Plane from '../component/plane';
@@ -13,15 +14,34 @@ export default defineComponent({
         //enemy
         const enemies = createEnemies();
 
+        // bullets
+        const { bullets, addBullet } = createBullets();
+
+        function onAttack(bulletInfo) {
+            addBullet(bulletInfo);
+        }
+
         function handleTicker() {
             // enemies move
             enemies.forEach(enemy => enemy.y++);
+
+            // bullets move
+            bullets.forEach(bullet => bullet.y--);
 
             // hit test
             enemies.forEach(enemy => {
                 if (hitTestObject(enemy, plane)) {
                     ctx.emit('changePage', 'EndPage');
                 }
+            });
+
+            bullets.forEach((bullet, bulletIndex) => {
+                enemies.forEach((enemy, enemyIndex) => {
+                    if (hitTestObject(bullet, enemy)) {
+                        bullets.splice(bulletIndex, 1);
+                        enemies.splice(enemyIndex, 1);
+                    }
+                });
             });
         }
 
@@ -34,7 +54,9 @@ export default defineComponent({
 
         return {
             plane,
-            enemies
+            enemies,
+            bullets,
+            onAttack
         };
     },
     render(ctx) {
@@ -44,13 +66,24 @@ export default defineComponent({
                 return h(Enemy, { x: info.x, y: info.y });
             });
         };
+        // create bullets
+        const createBullets = () => {
+            return ctx.bullets.map(info => {
+                return h(Bullet, {
+                    x: info.x,
+                    y: info.y
+                });
+            });
+        };
         return h('Container', [
             h(Map),
             h(Plane, {
                 x: ctx.plane.x,
-                y: ctx.plane.y
+                y: ctx.plane.y,
+                onAttack: ctx.onAttack
             }),
-            ...createEnemies()
+            ...createEnemies(),
+            ...createBullets()
         ]);
     },
 });
@@ -93,4 +126,16 @@ function createEnemies() {
         }
     ]);
     return enemies;
+}
+
+function createBullets() {
+    const bullets = reactive([]);
+    function addBullet(info) {
+        bullets.push({
+            ...info,
+            width: 5,
+            height: 11
+        });
+    }
+    return { bullets, addBullet };
 }
