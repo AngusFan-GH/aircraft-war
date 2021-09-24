@@ -1,10 +1,8 @@
 import { defineComponent, h } from '@vue/runtime-core';
-import mapImage from '../../assets/map.jpg';
+import Map from '../component/map';
 
 export default defineComponent({
     render() {
-        return h('Container', [
-            h('Sprite', { texture: mapImage })
-        ]);
+        return h('Container', [h(Map)]);
     }
 });

@@ -6,7 +6,7 @@ import StartPage from './page/start';
 
 export default defineComponent({
     setup() {
-        const currentPageName = ref('StartPage');
+        const currentPageName = ref('GamePage');
         const currentPage = computed(() => {
             if (currentPageName.value === 'StartPage') {
                 return StartPage;
