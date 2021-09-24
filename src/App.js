@@ -1,14 +1,33 @@
 // root component
-import { defineComponent, h } from '@vue/runtime-core';
-import Circle from './component/Circle';
+import { computed, defineComponent, h, ref } from '@vue/runtime-core';
+import GamePage from './page/game';
+import StartPage from './page/start';
+
 
 export default defineComponent({
-    render() {
+    setup() {
+        const currentPageName = ref('StartPage');
+        const currentPage = computed(() => {
+            if (currentPageName.value === 'StartPage') {
+                return StartPage;
+            } else if (currentPageName.value === 'GamePage') {
+                return GamePage;
+            }
+        });
+        return {
+            currentPage,
+            currentPageName
+        };
+    },
+    render(ctx) {
         // create vnode
-        const vnode = h('rect', { x: 100, y: 100 }, '矩形', [
-            h(Circle)
+        const vnode = h('Container', [
+            h(ctx.currentPage, {
+                onChangePage(page) {
+                    ctx.currentPageName = page;
+                }
+            })
         ]);
-        console.log(vnode);
         return vnode;
     }
 });

@@ -1,22 +1,16 @@
 import { createRenderer } from '@vue/runtime-core';
-import { Graphics, Text } from 'pixi.js';
+import { Container, Sprite, Text, Texture } from 'pixi.js';
 
 
 const renderer = createRenderer({
     createElement(type) {
         let element;
         switch (type) {
-            case 'rect':
-                element = new Graphics();
-                element.beginFill(0xff0000);
-                element.drawRect(0, 0, 500, 500);
-                element.endFill();
+            case 'Container':
+                element = new Container();
                 break;
-            case 'circle':
-                element = new Graphics();
-                element.beginFill(0xffff00);
-                element.drawCircle(0, 0, 50);
-                element.endFill();
+            case 'Sprite':
+                element = new Sprite();
                 break;
         }
         return element;
@@ -27,7 +21,16 @@ const renderer = createRenderer({
     },
 
     patchProp(el, key, prevValue, nextValue) {
-        el[key] = nextValue;
+        switch (key) {
+            case 'texture':
+                el.texture = Texture.from(nextValue);
+                break;
+            case 'onClick':
+                el.on('pointertap', nextValue);
+                break;
+            default:
+                el[key] = nextValue;
+        }
     },
 
     setElementText(node, text) {
@@ -37,6 +40,19 @@ const renderer = createRenderer({
 
     createText(text) {
         return new Text(text);
+    },
+
+    createComment() { },
+
+    parentNode() { },
+
+    nextSibling() { },
+
+    remove(el) {
+        const parent = el.parent;
+        if (parent) {
+            parent.removeChild(el);
+        }
     }
 });
 
