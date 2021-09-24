@@ -7,7 +7,7 @@ import { game } from '../Game.js';
 import { hitTestObject } from '../utils';
 
 export default defineComponent({
-    setup(props, ctx) {
+    setup(props, { emit }) {
         // plane
         const plane = createPlane();
 
@@ -21,36 +21,7 @@ export default defineComponent({
             addBullet(bulletInfo);
         }
 
-        function handleTicker() {
-            // enemies move
-            enemies.forEach(enemy => enemy.y++);
-
-            // bullets move
-            bullets.forEach(bullet => bullet.y--);
-
-            // hit test
-            enemies.forEach(enemy => {
-                if (hitTestObject(enemy, plane)) {
-                    ctx.emit('changePage', 'EndPage');
-                }
-            });
-
-            bullets.forEach((bullet, bulletIndex) => {
-                enemies.forEach((enemy, enemyIndex) => {
-                    if (hitTestObject(bullet, enemy)) {
-                        bullets.splice(bulletIndex, 1);
-                        enemies.splice(enemyIndex, 1);
-                    }
-                });
-            });
-        }
-
-        onMounted(() => {
-            game.ticker.add(handleTicker);
-        });
-        onUnmounted(() => {
-            game.ticker.remove(handleTicker);
-        });
+        handleFighting({ plane, enemies, bullets, emit });
 
         return {
             plane,
@@ -138,4 +109,37 @@ function createBullets() {
         });
     }
     return { bullets, addBullet };
+}
+
+function handleFighting({ plane, enemies, bullets, emit }) {
+    function handleTicker() {
+        // enemies move
+        enemies.forEach(enemy => enemy.y++);
+
+        // bullets move
+        bullets.forEach(bullet => bullet.y--);
+
+        // hit test
+        enemies.forEach(enemy => {
+            if (hitTestObject(enemy, plane)) {
+                emit('changePage', 'EndPage');
+            }
+        });
+
+        bullets.forEach((bullet, bulletIndex) => {
+            enemies.forEach((enemy, enemyIndex) => {
+                if (hitTestObject(bullet, enemy)) {
+                    bullets.splice(bulletIndex, 1);
+                    enemies.splice(enemyIndex, 1);
+                }
+            });
+        });
+    }
+
+    onMounted(() => {
+        game.ticker.add(handleTicker);
+    });
+    onUnmounted(() => {
+        game.ticker.remove(handleTicker);
+    });
 }
