@@ -1,44 +1,96 @@
-import { defineComponent, h, reactive } from '@vue/runtime-core';
+import { defineComponent, h, onMounted, onUnmounted, reactive } from '@vue/runtime-core';
+import Enemy from '../component/enemy';
 import Map from '../component/map';
 import Plane from '../component/plane';
+import { game } from '../Game.js';
+import { hitTestObject } from '../utils';
 
 export default defineComponent({
-    setup() {
-        const { point } = getPlaneInfo();
+    setup(props, ctx) {
+        // plane
+        const plane = createPlane();
+
+        //enemy
+        const enemies = createEnemies();
+
+        function handleTicker() {
+            // enemies move
+            enemies.forEach(enemy => enemy.y++);
+
+            // hit test
+            enemies.forEach(enemy => {
+                if (hitTestObject(enemy, plane)) {
+                    ctx.emit('changePage', 'EndPage');
+                }
+            });
+        }
+
+        onMounted(() => {
+            game.ticker.add(handleTicker);
+        });
+        onUnmounted(() => {
+            game.ticker.remove(handleTicker);
+        });
+
         return {
-            planeInfo: point
+            plane,
+            enemies
         };
     },
     render(ctx) {
+        // create enemies
+        const createEnemies = () => {
+            return ctx.enemies.map(info => {
+                return h(Enemy, { x: info.x, y: info.y });
+            });
+        };
         return h('Container', [
             h(Map),
             h(Plane, {
-                x: ctx.planeInfo.x,
-                y: ctx.planeInfo.y,
-            })
+                x: ctx.plane.x,
+                y: ctx.plane.y
+            }),
+            ...createEnemies()
         ]);
-    }
+    },
 });
 
-function getPlaneInfo() {
-    const point = reactive({ x: 189, y: 500 });
+function createPlane() {
+    const info = reactive({
+        x: 189,
+        y: 500,
+        width: 102,
+        height: 126
+    });
     // keyboard control
     window.addEventListener('keydown', e => {
         const speed = 15;
         switch (e.code) {
             case 'ArrowUp':
-                point.y -= speed;
+                info.y -= speed;
                 break;
             case 'ArrowDown':
-                point.y += speed;
+                info.y += speed;
                 break;
             case 'ArrowLeft':
-                point.x -= speed;
+                info.x -= speed;
                 break;
             case 'ArrowRight':
-                point.x += speed;
+                info.x += speed;
                 break;
         }
     });
-    return { point };
+    return info;
+}
+
+function createEnemies() {
+    const enemies = reactive([
+        {
+            x: 50,
+            y: 0,
+            width: 69,
+            height: 99
+        }
+    ]);
+    return enemies;
 }
